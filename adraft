@@ -1,0 +1,22 @@
+rowMin = max(i - 1, 0)
+rowMax = min(i + 2, rows)
+for j in range(cols):
+    colMin = max(j - 1, 0)
+    colMax = min(j + 2, cols)
+    neighborhood = grid.copy()[rowMin:rowMax, colMin:colMax]
+    neighborhood[i - rowMin, j - colMin] = 0
+    neighbours[i, j] = np.sum(neighborhood)
+
+        grid = self.getGrid()
+        rows, cols = grid.shape
+        neighbours = np.zeros((rows, cols), np.int64)
+
+        for row in range(rows):
+            for col in range(cols):
+                row_min = max(row - 1, 0)
+                row_max = min(row + 2, rows)
+                col_min = max(col - 1, 0)
+                col_max = min(col + 2, cols)
+
+                neighbour_count = np.sum(grid[row_min:row_max, col_min:col_max]) - grid[row, col]
+                neighbours[row, col] = neighbour_count
