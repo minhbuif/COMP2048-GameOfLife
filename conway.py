@@ -155,18 +155,25 @@ class GameOfLife:
         '''
         Assumes txtString contains the entire pattern as a human readable pattern without comments
         '''
-        while txtString[0] == "!":
-            txtString = txtString[txtString.find("\n") + 1:]
+        # Remove comment lines starting with "!"
+        lines = []
+        for line in txtString.splitlines():
+            if not line.startswith("!"):
+                lines.append(line)
 
-        width = txtString.find("\n") + 1 # +1 for '\n'
-        height = (int) (len(txtString) / (width)) + 1
-        grid = np.zeros((height, width - 1), np.int64) # -1 to exclude '\n'
-        for index, char in enumerate(txtString):
-            if char == "O":
-                row = index // width
-                col = index % width
-                grid[row][col] = 1
-        
+        # Determine grid dimensions
+        height = len(lines)
+        width = len(lines[0]) if height > 0 else 0
+
+        # Create the grid with padding
+        grid = np.zeros((height, width), np.int64)
+
+        # Populate the grid
+        for row, line in enumerate(lines):
+            for col, char in enumerate(line):
+                if char == "O":  # Alive cell
+                    grid[row][col] = self.aliveValue
+
         self.grid = grid
 
     def insertFromRLE(self, rleString, pad=0):
