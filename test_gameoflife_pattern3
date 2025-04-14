@@ -7,7 +7,7 @@ Created on Tue Jan 15 12:37:52 2019
 @author: shakes
 """
 import conway
-with open("pattern2-120p34.txt", "r") as text_file:
+with open("pattern3-54p23.txt", "r") as text_file:
         txtString = text_file.read()
 
 #create the game of life object
