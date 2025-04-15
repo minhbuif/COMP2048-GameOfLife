@@ -47,41 +47,52 @@ class GameOfLife:
         '''
         #get weighted sum of neighbors
         #PART A & E CODE HERE
-        grid = self.getGrid()
-        rows, cols = grid.shape
 
-        # Create a grid with the same dimension to store number of neighbours
-        neighbours = np.zeros((rows, cols), np.int64)
+        if self.fastMode:
+            # Use scipy to convolve the grid with the neighborhood kernel
+            neighbours = signal.convolve2d(self.grid, self.neighborhood, mode='same')
+            # Vectorized rule application
+            survival = (self.grid == 1) & ((neighbours == 2) | (neighbours == 3))
+            repopulate = (self.grid == 0) & (neighbours == 3)
+            
+            # Update grid in one operation
+            self.grid = np.where(survival | repopulate, self.aliveValue, self.deadValue)
+        else:
+            grid = self.getGrid()
+            rows, cols = grid.shape
 
-        for row in range(rows):
-            for col in range(cols):
-                # min max to avoid indexing below 0
-                row_min = max(row - 1, 0)
-                row_max = min(row + 2, rows)
-                col_min = max(col - 1, 0)
-                col_max = min(col + 2, cols)
+            # Create a grid with the same dimension to store number of neighbours
+            neighbours = np.zeros((rows, cols), np.int64)
 
-                neighbour_count = np.sum(grid[row_min:row_max, col_min:col_max]) - grid[row, col]
-                neighbours[row, col] = neighbour_count
-                
-        #implement the GoL rules by thresholding the weights
-        #PART A CODE HERE
-        evolvedGrid = np.zeros((rows, cols), np.int64)
+            for row in range(rows):
+                for col in range(cols):
+                    # min max to avoid indexing below 0
+                    row_min = max(row - 1, 0)
+                    row_max = min(row + 2, rows)
+                    col_min = max(col - 1, 0)
+                    col_max = min(col + 2, cols)
 
-        for row in range(rows):
-            for col in range(cols):
-                if grid[row, col] == 0: # currently dead
-                    if neighbours[row, col] == 3: # reproduction
-                        evolvedGrid[row, col] = 1
-                else: # currently alive
-                    if neighbours[row, col] < 2: # underpopulation
-                        evolvedGrid[row, col]= 0
-                    elif neighbours[row, col] > 3: # overpopulation
-                        evolvedGrid[row, col]= 0
-                    else: # survival
-                        evolvedGrid[row, col]= 1
-        #update the grid
-        self.grid = evolvedGrid
+                    neighbour_count = np.sum(grid[row_min:row_max, col_min:col_max]) - grid[row, col]
+                    neighbours[row, col] = neighbour_count
+                    
+            #implement the GoL rules by thresholding the weights
+            #PART A CODE HERE
+            evolvedGrid = np.zeros((rows, cols), np.int64)
+
+            for row in range(rows):
+                for col in range(cols):
+                    if grid[row, col] == 0: # currently dead
+                        if neighbours[row, col] == 3: # reproduction
+                            evolvedGrid[row, col] = 1
+                    else: # currently alive
+                        if neighbours[row, col] < 2: # underpopulation
+                            evolvedGrid[row, col]= 0
+                        elif neighbours[row, col] > 3: # overpopulation
+                            evolvedGrid[row, col]= 0
+                        else: # survival
+                            evolvedGrid[row, col]= 1
+            #update the grid
+            self.grid = evolvedGrid
     
     def insertBlinker(self, index=(0,0)):
         '''
@@ -180,5 +191,18 @@ class GameOfLife:
         '''
         Given string loaded from RLE file, populate the game grid
         '''
-
+        parser = rle.RunLengthEncodedParser(rleString)
+        rle_grid = parser.pattern_2d_array
+        # Get the dimensions of the RLE grid
+        rle_height, rle_width = len(rle_grid), len(rle_grid[0])
+        # Create a new
+        grid = np.zeros((rle_height, rle_width), np.int64)
+        # Populate the grid with the RLE pattern
+        for row in range(rle_height):
+            for col in range(rle_width):
+                if rle_grid[row][col] == 'b':
+                    grid[row][col] = self.deadValue
+                elif rle_grid[row][col] == 'o':
+                    grid[row][col] = self.aliveValue 
         
+        self.grid = grid
