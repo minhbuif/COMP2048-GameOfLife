@@ -41,10 +41,10 @@ ax.set_yticks(np.arange(-.5, N, 1), minor=True);
 #grid
 ax.grid(which='minor', color='w', linestyle='-', linewidth=1)
 
-#plt.figure(1)
-#plt.imshow(cellsUpdated1)
+plt.figure(1)
+plt.imshow(cellsUpdated1)
 #
-#plt.figure(2)
-#plt.imshow(cellsUpdated2)
+plt.figure(2)
+plt.imshow(cellsUpdated2)
 
 plt.show()

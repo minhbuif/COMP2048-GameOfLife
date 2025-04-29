@@ -91,7 +91,7 @@ class GameOfLife:
                             evolvedGrid[row, col]= 0
                         else: # survival
                             evolvedGrid[row, col]= 1
-            #update the grid
+            
             self.grid = evolvedGrid
     
     def insertBlinker(self, index=(0,0)):
@@ -166,24 +166,24 @@ class GameOfLife:
         '''
         Assumes txtString contains the entire pattern as a human readable pattern without comments
         '''
-        # Remove comment lines starting with "!"
+        # Ignore lines starting with '!'
         lines = []
         for line in txtString.splitlines():
             if not line.startswith("!"):
                 lines.append(line)
 
-        # Determine grid dimensions
+        # Get dimensions
         height = len(lines)
         width = len(lines[0]) if height > 0 else 0
 
-        # Create the grid with padding
+        # Create the grid
         grid = np.zeros((height, width), np.int64)
 
         # Populate the grid
         for row, line in enumerate(lines):
             for col, char in enumerate(line):
                 if char == "O":  # Alive cell
-                    grid[row][col] = self.aliveValue
+                    grid[row][col] = self.aliveValue # We don't need to check for dead because the original grid is already zeroed
 
         self.grid = grid
 
@@ -191,13 +191,16 @@ class GameOfLife:
         '''
         Given string loaded from RLE file, populate the game grid
         '''
-        parser = rle.RunLengthEncodedParser(rleString)
-        rle_grid = parser.pattern_2d_array
-        # Get the dimensions of the RLE grid
+        reader = rle.RunLengthEncodedParser(rleString)
+        rle_grid = reader.pattern_2d_array
+
+        # Get dimensions
         rle_height, rle_width = len(rle_grid), len(rle_grid[0])
-        # Create a new
+
+        # Create the grid
         grid = np.zeros((rle_height, rle_width), np.int64)
-        # Populate the grid with the RLE pattern
+
+        # Populate the grid
         for row in range(rle_height):
             for col in range(rle_width):
                 if rle_grid[row][col] == 'b':
